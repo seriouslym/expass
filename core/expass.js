@@ -1,7 +1,7 @@
 const http = require('http')
 const Router = require('./router')
 const fs = require('fs')
-const Resopnse = require('./response')
+const Response = require('./response')
 class App {
     constructor() {
         this.router = new Router();
@@ -19,7 +19,7 @@ class App {
         const server = http.createServer((req, res) => {
             // 封装req 和 res
             // req添加param res 添加json html等简单方法
-            res = new Resopnse(res)
+            res = new Response(res)
             let [node, params] = this.router.getRouter(req.method, req.url);
             if (node !== null) {
                 let key = `${req.method}-${node.pattern}`;
