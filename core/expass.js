@@ -1,25 +1,34 @@
 const http = require('http')
 const Router = require('./router')
 const fs = require('fs')
-const Resopnse = require('./response')
-class App {
+const Response = require('./response')
+class Engine extends RouterGroup{
     constructor() {
+        super()
         this.router = new Router();
+        let group = new RouterGroup(this);
+        group.engine = this;
+        this.groups = [group]
     }
-    get(pattern, callback) {
-        this.router.addRouter("GET", pattern, callback)
-    }
-    addRouter(method, pattern, callback) {
-        this.router.addRouter(method, pattern, callback)
-    }
-    post(pattern, callback) {
-        this.router.addRouter("POST", pattern, callback)
-    }
+
+    // get(pattern, callback) {
+    //     this.addRouter("GET", pattern, callback)
+    // }
+    //
+    // addRouter(method, pattern, callback) {
+    //     this.routerGroup.addRouter(method, pattern, callback)
+    //     // this.router.addRouter(method, pattern, callback)
+    // }
+    //
+    // post(pattern, callback) {
+    //     this.addRouter("POST", pattern, callback)
+    // }
+
     listen(port, callback) {
         const server = http.createServer((req, res) => {
             // 封装req 和 res
             // req添加param res 添加json html等简单方法
-            res = new Resopnse(res)
+            res = new Response(res)
             let [node, params] = this.router.getRouter(req.method, req.url);
             if (node !== null) {
                 let key = `${req.method}-${node.pattern}`;
@@ -34,4 +43,31 @@ class App {
         server.listen(port, callback)
     }
 }
-module.exports = () => new App()
+    // RouterGroup 还是借助Engine的router进行路由 所有RouterGroup都保存同一份Engine实例
+class RouterGroup {
+    constructor() {
+        this.prefix = "";
+        this._engine = null;
+        this.middlewares = [];
+    }
+    set engine(engine) {
+        this._engine = engine;
+    }
+    Group(prefix) {
+        let engine = this._engine;
+        let newGroup = new RouterGroup()
+        engine.groups.push(newGroup);
+        return new RouterGroup(engine);
+    }
+    addRouter(method, comp, callback) {
+        let pattern = this.prefix + comp;
+        this._engine.router.addRouter(method, pattern, callback);
+    }
+    GET(pattern, callback) {
+        this.addRouter("GET", pattern, callback);
+    }
+    POST(pattern, callback) {
+        this.addRouter("POST", pattern, callback)
+    }
+}
+module.exports = () => new Engine()
