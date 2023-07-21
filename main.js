@@ -1,12 +1,12 @@
 const expass = require('./core/expass')
 
 const app = expass();
-// app.get("/hello", (req, res) => {
-//     res.json({
-//         name: "zjj",
-//         age: 23
-//     })
-// })
+app.GET("/hello", (req, res) => {
+    res.json({
+        name: "zjj",
+        age: 23
+    })
+})
 // app.get("/", (req, res) => {
 //     res.html("<h1 style='color: aqua'>sfsfsfsf</h1>")
 // })
