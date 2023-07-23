@@ -7,6 +7,9 @@ app.GET("/hello", (req, res) => {
         age: 23
     })
 })
+app.use((req, res, next) => {
+    console.log(`全局middleware 当前请求路径为${req.url}`, new Date().toISOString())
+})
 // app.get("/", (req, res) => {
 //     res.html("<h1 style='color: aqua'>sfsfsfsf</h1>")
 // })
@@ -19,6 +22,9 @@ app.GET("/hello", (req, res) => {
 let routerGroup = app.Group("/v1");
 routerGroup.GET("/hello",(req, res) => {
     res.html("<h1 style='color: aqua'>hello</h1>")
+})
+routerGroup.use((req, res, next) => {
+    console.log("v1的中间件");
 })
 routerGroup.GET("/",(req, res) => {
     res.html("<h1 style='color: aqua'>/</h1>")

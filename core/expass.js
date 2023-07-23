@@ -26,6 +26,9 @@ class RouterGroup {
     POST(pattern, callback) {
         this.addRouter("POST", pattern, callback)
     }
+    use(middleware) {
+        this.middlewares.push(middleware);
+    }
 }
 class Engine extends RouterGroup{
     constructor() {
@@ -58,6 +61,15 @@ class Engine extends RouterGroup{
             // 封装req 和 res
             // req添加param res 添加json html等简单方法
             res = new Response(res)
+            let middlewares = []
+            for (let group of this._engine.groups) {
+                if (req.url.startsWith(group.prefix)) {
+                    middlewares.push(...group.middlewares);
+                }
+            }
+            for (let middleware of middlewares) {
+                middleware(req, res, null)
+            }
             let [node, params] = this.router.getRouter(req.method, req.url);
             if (node !== null) {
                 let key = `${req.method}-${node.pattern}`;
